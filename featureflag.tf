@@ -22,44 +22,9 @@ resource "launchdarkly_feature_flag" "terraform_flag" {
   ]
 }
 
-resource "launchdarkly_feature_flag_environment" "dev_env" {
-  flag_id = launchdarkly_feature_flag.terraform_flag.id
-  env_key = "test"
-  on      = true
-
-  targets {
-    values    = ["user0"]
-    variation = 0
-  }
-  targets {
-    values    = ["user1", "user2"]
-    variation = 1
-  }
-  context_targets {
-    values       = ["android"]
-    variation    = 1
-    context_kind = "mobile"
-  }
-
-  rules {
-    description = "example targeting rule with two clauses"
-    clauses {
-      attribute = "country"
-      op        = "startsWith"
-      values    = ["aus", "de", "united"]
-      negate    = false
-    }
-    clauses {
-      attribute = "segmentMatch"
-      op        = "segmentMatch"
-      values    = [launchdarkly_segment.my_segment.key]
-      negate    = false
-    }
-    variation = 0
-  }
-
-  fallthrough {
-    variation = 0
-  }
-  off_variation = 1
+module "default_targets" {
+  source          = "./modules/default_targets"
+  flag_id         = launchdarkly_feature_flag.terraform_flag.id
+  environment_key = "test"
+  segment_key     = launchdarkly_segment.my_segment.key
 }
